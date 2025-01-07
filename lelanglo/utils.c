@@ -1,29 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing.h                                          :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 10:53:06 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/07 15:46:22 by lelanglo         ###   ########.fr       */
+/*   Created: 2025/01/07 15:45:21 by lelanglo          #+#    #+#             */
+/*   Updated: 2025/01/07 15:46:06 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PARSING_H
-# define PARSING_H
+#include "parsing.h"
 
-# include "../libft/libft.h"
-# include <readline/readline.h>
-# include <readline/history.h>
-# include <stdio.h>
-# include <string.h>
-# include <signal.h>
-# include <sys/wait.h>
+int	ft_strcmp(char *s1, char *s2)
+{
+	int	i;
 
-# define KGRN "\x1B[32m"
-
-void	ft_redirection(char *input);
-int		ft_strcmp(char *s1, char *s2);
-
-#endif
+	i = 0;
+	while (s1[i] == s2[i] && s1[i] != '\0' && s2[i] != '\0')
+	{
+		i++;
+	}
+	return (s1[i] - s2[i]);
+}

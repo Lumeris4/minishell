@@ -6,7 +6,7 @@
 /*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 12:26:34 by rlebaill          #+#    #+#             */
-/*   Updated: 2025/01/06 15:47:02 by rlebaill         ###   ########.fr       */
+/*   Updated: 2025/01/07 14:18:08 by rlebaill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	ft_cd(char *input)
 	char	**split;
 	int		i;
 
-	split = ft_split(input, ' ');
+	split = ft_split_quote(input);
 	if (!split)
 		return ;
 	if (chdir(split[1]) != 0)
@@ -37,7 +37,7 @@ void	ft_echo(char *input, char **envp)
 	int			i;
 	static char	path[9] = "/bin/echo";
 
-	split = ft_split(input, ' ');
+	split = ft_split_quote(input);
 	if (!split)
 		return ;
 	if (fork() == 0)
@@ -52,35 +52,52 @@ void	ft_echo(char *input, char **envp)
 	free(split);
 }
 
-void	ft_pwd(char **envp)
+void	ft_shell(char **envp, char *input)
 {
 	pid_t	pid;
-	char	*args[2];
+	char	**args;
+	char	*cmd_path;
+	int		i;
 
+	i = 0;
+	args = ft_split_quote(input);
+	if (!args)
+		exit(EXIT_FAILURE);
+	cmd_path = ft_strjoin("/usr/bin/", args[0]);
 	pid = fork();
 	if (pid == -1)
-	{
-		perror("Fork failed");
 		exit(EXIT_FAILURE);
-	}
 	else if (pid == 0)
 	{
-		args[0] = "pwd";
-		args[1] = NULL;
-		if (execve("/usr/bin/pwd", args, envp) == -1)
+		if (execve(cmd_path, args, envp) == -1)
 		{
-			perror("Error executing pwd");
+			ft_printf("command not found: %s\n", args[0]);
 			exit(EXIT_FAILURE);
 		}
 	}
-	wait(NULL);
+	while (args[i])
+		free(args[i++]);
+	free(args);
+	free(cmd_path);
 }
 
-void	ft_yes(void)
+void	ft_exec(char *input, char **envp)
 {
-	while (1)
+	char	**split;
+
+	split = ft_split_quote(input);
+	if (!split[0][2])
 	{
-		ft_putchar_fd('y', 1);
-		ft_putchar_fd('\n', 1);
+		ft_printf("permission denied: ./\n");
+		return ;
 	}
+	if (fork() == 0)
+	{
+		if (execve(&split[0][2], split, envp) == -1)
+		{
+			ft_printf("file not found : %s\n", &split[0][2]);
+			exit (0);
+		}
+	}
+	wait(NULL);
 }

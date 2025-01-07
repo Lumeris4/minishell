@@ -2,7 +2,7 @@ NAME = minishell
 CC = cc
 CFLAGS = -Wall -Werror -Wextra -lreadline
 
-SRCS = command1.c main.c
+SRCS = split.c command1.c command2.c main.c
 
 LIBFTDIR = ../libft
 LIBFT = $(LIBFTDIR)/libft.a

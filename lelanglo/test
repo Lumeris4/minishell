@@ -1,0 +1,57 @@
+
+total 48
+-rw-r--r-- 1 lelanglo 2024_le-havre  1677 Jan  7 15:31 chevron.c
+-rw-r--r-- 1 lelanglo 2024_le-havre  2650 Jan  7 15:50 main.c
+-rw-r--r-- 1 lelanglo 2024_le-havre   498 Jan  7 15:46 Makefile
+-rwxr-xr-x 1 lelanglo 2024_le-havre 22832 Jan  7 15:50 minishell
+-rw-r--r-- 1 lelanglo 2024_le-havre  1211 Jan  7 15:46 parsing.h
+-rw-r--r-- 1 lelanglo 2024_le-havre     1 Jan  7 15:51 test
+-rw-r--r-- 1 lelanglo 2024_le-havre  1065 Jan  7 15:46 utils.c
+[?2004hMinishell ^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h^C[?2004l
+Minishell [?2004h[?2004l
