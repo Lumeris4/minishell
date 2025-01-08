@@ -6,57 +6,74 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 12:08:28 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/07 15:31:20 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/08 15:31:34 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parsing.h"
 
-static char	**find_name_file(char *input)
+static void	execute_command(char **envp, char **args)
 {
-	char	*result;
-	char	**split;
+	pid_t	pid;
+	char	*cmd_path;
 
-	result = ft_strchr(input, '>');
-	if (!result)
-		return (NULL);
-	result++;
-	while (*result == ' ')
-		result++;
-	split = ft_split(result, ' ');
-	return (split);
+	cmd_path = ft_strjoin("/usr/bin/", args[0]);
+	pid = fork();
+	if (pid == -1)
+	{
+		free(cmd_path);
+		exit(EXIT_FAILURE);
+	}
+	else if (pid == 0)
+	{
+		if (execve(cmd_path, args, envp) == -1)
+		{
+			perror("Execution failed");
+			exit(EXIT_FAILURE);
+		}
+	}
+	wait(NULL);
+	free(cmd_path);
 }
 
-void	ft_redirection(char *input)
+void	free_array(char **array)
 {
-	int		fd;
-	char	**result;
 	int		i;
 
-	result = find_name_file(input);
-	if (!result || !result[0])
-	{
-		perror("No file for redirection");
-		return ;
-	}
-	fd = open(result[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
-	{
-		perror("Failed to open file");
-		exit(EXIT_FAILURE);
-	}
-	if (dup2(fd, STDOUT_FILENO) == -1)
-	{
-		perror("Failed to redirect stdout");
-		close(fd);
-		exit(EXIT_FAILURE);
-	}
-	close(fd);
 	i = 0;
-	while (result[i])
+	while (array[i])
 	{
-		free(result[i]);
+		free(array[i]);
 		i++;
 	}
-	free(result);
+	free(array);
+}
+
+void	ft_shell(char **envp, char *input)
+{
+	char	**args;
+	int		i;
+
+	args = ft_split(input, ' ');
+	if (!args || !args[0])
+	{
+		free(args);
+		exit(EXIT_FAILURE);
+	}
+	i = 0;
+	while (args[i])
+	{
+		if (ft_strcmp(args[i], ">") == 0)
+		{
+			free(args[i]);
+			args[i] = NULL;
+			break ;
+		}
+		i++;
+	}
+	if (ft_strchr(input, '>') != NULL)
+		ft_redirection(input, envp);
+	else
+		execute_command(envp, args);
+	free_array(args);
 }

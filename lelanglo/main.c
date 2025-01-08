@@ -6,58 +6,11 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:08:40 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/07 15:51:35 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/08 15:10:34 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parsing.h"
-
-static void	ft_shell(char **envp, char *input)
-{
-	pid_t	pid;
-	char	**args;
-	char	*cmd_path;
-	int		i;
-
-	args = ft_split(input, ' ');
-	if (!args || !args[0])
-	{
-		free(args);
-		exit(EXIT_FAILURE);
-	}
-	i = 0;
-	while (args[i])
-	{
-		if (ft_strcmp(args[i], ">") == 0)
-		{
-			free(args[i]);
-			args[i] = NULL;
-			break ;
-		}
-		i++;
-	}
-	if (ft_strchr(input, '>') != NULL)
-	{
-		ft_redirection(input);
-	}
-	cmd_path = ft_strjoin("/usr/bin/", args[0]);
-	pid = fork();
-	if (pid == -1)
-	{
-		free(cmd_path);
-		exit(EXIT_FAILURE);
-	}
-	else if (pid == 0)
-	{
-		if (execve(cmd_path, args, envp) == -1)
-			exit(EXIT_FAILURE);
-	}
-	i = 0;
-	while (args[i])
-		free(args[i++]);
-	free(args);
-	free(cmd_path);
-}
 
 static void	ft_cd(char *input)
 {
