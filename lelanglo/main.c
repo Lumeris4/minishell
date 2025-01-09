@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:08:40 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/08 15:10:34 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/09 15:44:38 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static void	ft_cd(char *input)
 	char	**split;
 	int		i;
 
-	split = ft_split(input, ' ');
+	split = ft_split_quote(input);
 	if (!split)
 		return ;
 	if (chdir(split[1]) != 0)

@@ -1,57 +1,12 @@
-
-total 48
--rw-r--r-- 1 lelanglo 2024_le-havre  1677 Jan  7 15:31 chevron.c
--rw-r--r-- 1 lelanglo 2024_le-havre  2650 Jan  7 15:50 main.c
--rw-r--r-- 1 lelanglo 2024_le-havre   498 Jan  7 15:46 Makefile
--rwxr-xr-x 1 lelanglo 2024_le-havre 22832 Jan  7 15:50 minishell
--rw-r--r-- 1 lelanglo 2024_le-havre  1211 Jan  7 15:46 parsing.h
--rw-r--r-- 1 lelanglo 2024_le-havre     1 Jan  7 15:51 test
--rw-r--r-- 1 lelanglo 2024_le-havre  1065 Jan  7 15:46 utils.c
-[?2004hMinishell ^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h^C[?2004l
-Minishell [?2004h[?2004l
+/home/administrateur/code 42/minishell/lelanglo
+/home/administrateur/code 42/minishell/lelanglo
+total 60
+-rw-rw-r-- 1 administrateur administrateur  2135 janv.  9 15:15 chevron.c
+-rw-rw-r-- 1 administrateur administrateur  2729 janv.  9 15:23 chevron_utils.c
+-rw-rw-r-- 1 administrateur administrateur  1945 janv.  9 14:30 main.c
+-rw-rw-r-- 1 administrateur administrateur   522 janv.  9 11:49 Makefile
+-rwxrwxr-x 1 administrateur administrateur 27200 janv.  9 15:23 minishell
+-rw-rw-r-- 1 administrateur administrateur  1340 janv.  9 15:13 parsing.h
+-rw-r--r-- 1 administrateur administrateur  3038 janv.  9 11:50 split.c
+-rw-rw-r-- 1 administrateur administrateur    96 janv.  9 15:23 test
+-rw-rw-r-- 1 administrateur administrateur  1065 janv.  8 14:28 utils.c

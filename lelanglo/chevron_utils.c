@@ -6,27 +6,46 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 15:24:29 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/08 15:32:07 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/09 15:44:54 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parsing.h"
 
-static int	setup_redirection(char **args)
+static int	give_i(char **args, int number)
+{
+	int	i;
+
+	i = 0;
+	if (number == 1)
+	{
+		while (args[i] && ft_strcmp(args[i], ">") != 0)
+			i++;
+	}
+	else if (number == 2)
+	{
+		while (args[i] && ft_strcmp(args[i], ">>") != 0)
+			i++;
+	}
+	return (i);
+}
+
+static int	setup_redirection(char **args, int number)
 {
 	int	fd;
 	int	i;
 
-	i = 0;
-	while (args[i] && ft_strcmp(args[i], ">") != 0)
-		i++;
+	i = give_i(args, number);
 	if (!args[i] || !args[i + 1])
 	{
 		perror("Redirection file missing");
 		free_array(args);
 		exit(EXIT_FAILURE);
 	}
-	fd = open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (number == 1)
+		fd = open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	else if (number == 2)
+		fd = open(args[i + 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd == -1)
 	{
 		perror("Failed to open file");
@@ -66,20 +85,20 @@ static void	execute_command_with_redirection(char **args, char **envp,
 	free(cmd_path);
 }
 
-void	ft_redirection(char *input, char **envp)
+void	ft_redirection(char *input, char **envp, int number)
 {
 	int		fd;
 	int		save_stdout;
 	char	**args;
 
-	args = ft_split(input, ' ');
+	args = ft_split_quote(input);
 	if (!args || !args[0])
 	{
 		perror("No command provided");
 		free_array(args);
 		return ;
 	}
-	fd = setup_redirection(args);
+	fd = setup_redirection(args, number);
 	save_stdout = dup(STDOUT_FILENO);
 	if (dup2(fd, STDOUT_FILENO) == -1)
 	{
