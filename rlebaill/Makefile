@@ -1,8 +1,10 @@
+MAKEFLAGS += -s
+
 NAME = minishell
 CC = cc
 CFLAGS = -Wall -Werror -Wextra -lreadline
 
-SRCS = split.c command1.c command2.c main.c
+SRCS = split.c command.c command2.c env.c exec.c utils.c main.c chevron.c chevron_utils.c
 
 LIBFTDIR = ../libft
 LIBFT = $(LIBFTDIR)/libft.a

@@ -6,23 +6,23 @@
 /*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 10:35:15 by rlebaill          #+#    #+#             */
-/*   Updated: 2025/01/07 13:11:20 by rlebaill         ###   ########.fr       */
+/*   Updated: 2025/01/09 09:11:45 by rlebaill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	ft_count(char const *s, char c)
+static int	count(char const *s)
 {
 	int	i;
 	int	count;
 
 	i = 0;
 	count = 0;
-	while (s[i])
+	while (i == 0 || (s[i] && s[i + 1]))
 	{
-		if (s[i] != c && (i == 0 || s[i - 1] == c
-				|| s[i - 1] == '"' || s[i - 1] == '\''))
+		if (((i == 0 && s[i] != ' ' && s[i] != '\0')
+				|| (s[i] == ' ' && s[i + 1] != ' ')))
 			count++;
 		if (s[i] == '"')
 		{
@@ -41,63 +41,124 @@ static int	ft_count(char const *s, char c)
 	return (count);
 }
 
-static int	add_words(char *result, const char *s, int start, int i)
+static int	ft_len_without_quote(const char *s)
 {
-	while (start < i)
-		*result++ = s[start++];
-	*result = '\0';
-	return (1);
+	int	i;
+	int	len;
+
+	len = 0;
+	i = 0;
+	while (s[i] && s[i] == ' ')
+		i++;
+	while (s[i] && s[i] != ' ')
+	{
+		if (s[i] == '"')
+		{
+			while (s[++i] != '"' && s[i])
+				len++;
+			len--;
+		}
+		else if (s[i] == '\'')
+		{
+			while (s[++i] != '\'' && s[i])
+				len++;
+			len--;
+		}
+		len++;
+		i++;
+	}
+	return (len);
 }
 
-static int	give_i(int i, char c, char const *s)
+static int	ft_len_with_quote(const char *s)
 {
-	if (s[i] == '"')
-	{
+	int	i;
+	int	len;
+
+	len = 0;
+	i = 0;
+	while (s[i] && s[i] == ' ')
 		i++;
-		while (s[i] && s[i] != '"')
-			i++;
-	}
-	else if (s[i] == '\'')
+	while (s[i] && s[i] != ' ')
 	{
+		if (s[i] == '"')
+		{
+			len++;
+			while (s[++i] != '"' && s[i])
+				len++;
+		}
+		else if (s[i] == '\'')
+		{
+			len++;
+			while (s[++i] != '\'' && s[i])
+				len++;
+		}
+		len++;
 		i++;
-		while (s[i] && s[i] != '\'')
-			i++;
 	}
-	else
+	return (len);
+}
+
+static char	*next_word(char const *s)
+{
+	int		i;
+	int		j;
+	char	*word;
+
+	i = 0;
+	j = 0;
+	word = malloc(sizeof(char) * (ft_len_without_quote(s) + 1));
+	if (!word)
+		return (NULL);
+	while (j < ft_len_without_quote(s))
 	{
-		while (s[i] && s[i] != c && s[i] != '"' && s[i] != '\'')
-			i++;
+		if (s[i] == '"')
+			while (s[++i] != '"')
+				word[j++] = s[i];
+		else if (s[i] == '\'')
+			while (s[++i] != '\'')
+				word[j++] = s[i];
+		else
+			word[j++] = s[i];
+		i++;
 	}
-	return (i);
+	word[j] = '\0';
+	return (word);
 }
 
 char	**ft_split_quote(char *s)
 {
-	char	**result;
+	char	**split;
+	int		j;
 	int		i;
-	int		o;
-	int		start;
 
+	split = malloc(sizeof(char *) * (count(s) + 1));
 	i = 0;
-	o = 0;
-	result = malloc(sizeof(char *) * (ft_count(s, ' ') + 1));
-	if (result == NULL)
-		return (NULL);
-	while (s[i])
+	j = 0;
+	while (i < (int)ft_strlen(s))
 	{
-		if (s[i] != ' ')
-		{
-			start = i;
-			i = give_i(i, ' ', s);
-			if (s[i] == '"' || s[i] == '\'')
-				start++;
-			result[o] = malloc(sizeof(char) * (i - start + 1));
-			if (!(result[o]) || (add_words (result[o++], s, start, i) != 1))
-				return (NULL);
-		}
-		if (s[i] == ' ' || s[i] == '"' || s[i] == '\'')
+		while (s[i] == ' ' && s[i])
 			i++;
+		if (!s[i])
+			break ;
+		split[j] = next_word(&s[i]);
+		i += ft_len_with_quote(&s[i]) + 1;
+		j++;
 	}
-	result[o] = NULL;
-	return (result);
+	split[j] = NULL;
+	return (split);
 }
+
+// int	main(void)
+// {
+// 	int		i;
+// 	char	**split;
+
+// 	split = ft_split_quote("ok\'ok\" \"kk\' bonsoir");
+// 	for (i = 0; split[i]; i++)
+// 	{
+// 		printf("%s\n", split[i]);
+// 		free(split[i]);
+// 	}
+// 	free(split);
+// }

@@ -5,86 +5,88 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 18:33:33 by rlebaill          #+#    #+#             */
-/*   Updated: 2025/01/07 13:39:41 by rlebaill         ###   ########.fr       */
+/*   Created: 2025/01/08 09:07:09 by rlebaill          #+#    #+#             */
+/*   Updated: 2025/01/08 18:18:10 by rlebaill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	**copy_env(char **envp)
-{
-	int		i;
-	int		size;
-	char	**env_copy;
-
-	size = 0;
-	while (envp[size])
-		size++;
-	env_copy = (char **)malloc((size + 1) * sizeof(char *));
-	if (!env_copy)
-		return (NULL);
-	i = 0;
-	while (i < size)
-	{
-		env_copy[i] = ft_strdup(envp[i]);
-		i++;
-	}
-	env_copy[size] = NULL;
-	return (env_copy);
-}
-
-void	ft_sort(char **env)
-{
-	int		i;
-	int		j;
-	char	*temp;
-
-	i = 0;
-	while (env[i])
-	{
-		j = i + 1;
-		while (env[j])
-		{
-			if (ft_strncmp(env[i], env[j], 1024) > 0)
-			{
-				temp = env[i];
-				env[i] = env[j];
-				env[j] = temp;
-			}
-			j++;
-		}
-		i++;
-	}
-}
-
-void	ft_free_env(char **env)
+static int	ft_have_equal(char *str)
 {
 	int	i;
 
 	i = 0;
-	while (env[i])
+	while (str[i])
 	{
-		free(env[i]);
+		if (str[i] == '=')
+			return (1);
 		i++;
 	}
-	free(env);
+	return (0);
 }
 
-void	ft_export(char *input, char **envp)
+void	ft_export(char **split, t_mini *mini)
+{
+	t_list	*lst;
+	int		i;
+
+	lst = mini->export;
+	if (ft_get_size_mat(split) == 1)
+	{
+		while (lst)
+		{
+			ft_printf("%s\n", lst->content);
+			lst = lst->next;
+		}
+	}
+	else
+	{
+		i = 1;
+		while (split[i])
+		{
+			if (ft_have_equal(split[i]))
+			{
+				lst = ft_lstnew(ft_strdup(split[i]));
+				ft_lstadd_back(&mini->env, lst);
+			}
+			i++;
+		}
+	}
+}
+
+static void	ft_remove_node(t_list **env, t_list *lst)
+{
+	t_list	*i;
+
+	i = *env;
+	while (i->next != lst)
+		i = i ->next;
+	i->next = i->next->next;
+	ft_lstdelone(lst, free);
+}
+
+void	ft_unset(char **split, t_mini *mini)
 {
 	int		i;
-	char	**envs;
+	t_list	*lst;
 
-	(void)input;
-	envs = copy_env(envp);
-	ft_sort(envs);
-	i = 0;
-	while (envs[i])
+	if (ft_get_size_mat(split) == 1)
+		return ;
+	i = 1;
+	lst = mini->env;
+	while (split[i])
 	{
-		ft_putstr_fd(envs[i], 1);
-		ft_putchar_fd('\n', 1);
+		while (lst)
+		{
+			if (ft_strncmp(split[i], lst->content, ft_strlen(split[i])) == 0
+				&& lst->content[ft_strlen(split[i])] == '=')
+			{
+				ft_remove_node(&mini->env, lst);
+				return ;
+			}
+			lst = lst->next;
+		}
 		i++;
 	}
-	ft_free_split(envs);
 }

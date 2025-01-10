@@ -3,50 +3,36 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:03:24 by rlebaill          #+#    #+#             */
-/*   Updated: 2025/01/07 14:01:43 by rlebaill         ###   ########.fr       */
+/*   Updated: 2025/01/10 09:26:52 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	g_i = 0;
-
-void	ft_free_split(char **split)
+void	ft_command(char **split, char **envp, t_mini *mini, char *input)
 {
-	int	i;
-
-	i = 0;
-	while (split[i])
-	{
-		free(split[i]);
-		i++;
-	}
-	free(split);
-}
-
-void	ft_command(char *input, char **envp)
-{
-	char	**split;
-
-	split = ft_split_quote(input);
-	if (ft_strncmp(input, "echo", 4) == 0 && (!input[4] || input[4] == ' '))
-		ft_echo(input, envp);
-	else if (ft_strncmp(input, "cd", 2) == 0 && (!input[2] || input[2] == ' '))
-		ft_cd(input);
-	else if (ft_strncmp(input, "./", 2) == 0)
-		ft_exec(input, envp);
-	else if (ft_strncmp(input, "export", 6) == 0
-		&& (!input[6] || input[6] == ' '))
-		ft_export(input, envp);
-	else if (*input)
+	if (!split)
+		return ;
+	if (ft_strncmp(split[0], "echo", 4) == 0 && !split[0][4])
+		ft_echo(split);
+	else if (ft_strncmp(split[0], "export", 6) == 0 && !split[0][6])
+		ft_export(split, mini);
+	else if (ft_strncmp(split[0], "unset", 5) == 0 && !split[0][5])
+		ft_unset(split, mini);
+	else if (ft_strncmp(split[0], "cd", 2) == 0 && !split[0][2])
+		ft_cd(split, mini->env);
+	else if (ft_strncmp(split[0], "env", 3) == 0 && !split[0][3])
+		ft_env(mini->env);
+	else if (ft_strncmp(split[0], "./", 2) == 0)
+		ft_exec(split[0], envp);
+	else if (*split[0])
 	{
 		ft_shell(envp, input);
 		wait(NULL);
 	}
-	ft_free_split(split);
 }
 
 void	ft_ctrl_c(int sig)
@@ -93,23 +79,26 @@ static int	ft_open_quote(const char *s)
 
 int	main(int ac, char **av, char **envp)
 {
+	t_mini	mini;
 	char	*input;
-	char	**env;
 
-	env = copy_env(envp);
+	mini.env = ft_env_in_list(envp);
+	mini.export = ft_env_sorted_in_list(&mini);
 	signal(SIGINT, ft_ctrl_c);
 	signal(SIGQUIT, SIG_IGN);
 	while (1 || ac || av[0])
 	{
 		input = readline("minishell> ");
 		if (!input)
-			return (ft_free_env(env), ft_printf("exit\n"), 0);
+			return (ft_lstclear(&mini.env, free),
+				ft_lstclear(&mini.export, free), ft_printf("exit\n"), 0);
 		if (ft_strncmp(input, "exit", 4) == 0 && (!input[4] || input[4] == ' '))
-			return (ft_free_env(env), free(input), 0);
+			return (ft_lstclear(&mini.env, free), free(input),
+				ft_lstclear(&mini.export, free), ft_printf("exit\n"), 0);
 		if (*input && !ft_open_quote(input))
 		{
 			add_history(input);
-			ft_command(input, env);
+			ft_execute(input, &mini, envp);
 		}
 		free(input);
 	}
