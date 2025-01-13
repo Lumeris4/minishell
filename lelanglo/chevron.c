@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 12:08:28 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/09 15:44:23 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/13 14:39:39 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,9 @@ static void	ft_direction(char *input, char **envp, char **args)
 
 	cut = ft_strchr(input, '>');
 	if (cut && cut[1] == '>')
-		ft_redirection(input, envp, 2);
+		ft_redirection(input, envp);
 	else if (ft_strchr(input, '>') != NULL)
-		ft_redirection(input, envp, 1);
+		ft_redirection(input, envp);
 	else
 		execute_command(envp, args);
 }
