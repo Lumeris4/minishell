@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 12:08:28 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/13 14:39:39 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/14 16:30:49 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,12 @@ static void	ft_direction(char *input, char **envp, char **args)
 {
 	char	*cut;
 
-	cut = ft_strchr(input, '>');
-	if (cut && cut[1] == '>')
-		ft_redirection(input, envp);
-	else if (ft_strchr(input, '>') != NULL)
+	cut = ft_strchr(input, '<');
+	if (cut && cut[1] && cut[1] == '<')
+		ft_heredoc(input);
+	else if (ft_strchr(input, '<'))
+		ft_other_redirection(input, envp);
+	else if (ft_strchr(input, '>'))
 		ft_redirection(input, envp);
 	else
 		execute_command(envp, args);
@@ -65,30 +67,12 @@ static void	ft_direction(char *input, char **envp, char **args)
 void	ft_shell(char **envp, char *input)
 {
 	char	**args;
-	int		i;
 
 	args = ft_split_quote(input);
 	if (!args || !args[0])
 	{
 		free(args);
 		exit(EXIT_FAILURE);
-	}
-	i = 0;
-	while (args[i])
-	{
-		if (ft_strcmp(args[i], ">>") == 0)
-		{
-			free(args[i]);
-			args[i] = NULL;
-			break ;
-		}
-		else if (ft_strcmp(args[i], ">") == 0)
-		{
-			free(args[i]);
-			args[i] = NULL;
-			break ;
-		}
-		i++;
 	}
 	ft_direction(input, envp, args);
 	free_array(args);

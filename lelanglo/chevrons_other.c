@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   chevron_utils.c                                    :+:      :+:    :+:   */
+/*   chevrons_other.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/08 15:24:29 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/14 11:32:23 by lelanglo         ###   ########.fr       */
+/*   Created: 2025/01/14 12:21:04 by lelanglo          #+#    #+#             */
+/*   Updated: 2025/01/14 13:14:17 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parsing.h"
 
-static int	setup_redirection(char **args, int *i, int number)
+static int	setup_input_redirection(char **args, int *i)
 {
 	int	fd;
 
@@ -22,13 +22,10 @@ static int	setup_redirection(char **args, int *i, int number)
 		free_array(args);
 		exit(EXIT_FAILURE);
 	}
-	if (number == 1)
-		fd = open(args[*i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	else
-		fd = open(args[*i + 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+	fd = open(args[*i + 1], O_RDONLY);
 	if (fd == -1)
 	{
-		perror("Failed to open file");
+		perror("Failed to open file for input redirection");
 		free_array(args);
 		exit(EXIT_FAILURE);
 	}
@@ -37,21 +34,17 @@ static int	setup_redirection(char **args, int *i, int number)
 	return (fd);
 }
 
-static void	execute_command_with_redirection(char **args, char **envp
-			, int save_stdout)
+static void	execute_command(char **args, char **envp, int save_stdin)
 {
 	char	*cmd_path;
 	pid_t	pid;
 
-	if (!ft_strchr(args[0], '>'))
-		cmd_path = ft_strjoin("/usr/bin/", args[0]);
-	else
-		cmd_path = ft_strjoin("/usr/bin/", args[2]);
+	cmd_path = ft_strjoin("/usr/bin/", args[0]);
 	pid = fork();
 	if (pid == -1)
 	{
 		free(cmd_path);
-		dup2(save_stdout, STDOUT_FILENO);
+		dup2(save_stdin, STDIN_FILENO);
 		free_array(args);
 		exit(EXIT_FAILURE);
 	}
@@ -64,15 +57,15 @@ static void	execute_command_with_redirection(char **args, char **envp
 		}
 	}
 	wait(NULL);
-	dup2(save_stdout, STDOUT_FILENO);
-	close(save_stdout);
+	dup2(save_stdin, STDIN_FILENO);
+	close(save_stdin);
 	free(cmd_path);
 }
 
-void	ft_redirection(char *input, char **envp)
+void	ft_other_redirection(char *input, char **envp)
 {
 	int		fd;
-	int		save_stdout;
+	int		save_stdin;
 	char	**args;
 	int		i;
 
@@ -83,25 +76,22 @@ void	ft_redirection(char *input, char **envp)
 		free_array(args);
 		return ;
 	}
-	save_stdout = dup(STDOUT_FILENO);
-	if (save_stdout == -1)
+	save_stdin = dup(STDIN_FILENO);
+	if (save_stdin == -1)
 	{
-		perror("Failed to save stdout");
+		perror("Failed to save stdin");
 		free_array(args);
 		exit(EXIT_FAILURE);
 	}
 	i = 0;
 	while (args[i])
 	{
-		if (ft_strcmp(args[i], ">") == 0 || ft_strcmp(args[i], ">>") == 0)
+		if (ft_strcmp(args[i], "<") == 0)
 		{
-			if (ft_strcmp(args[i], ">") == 0)
-				fd = setup_redirection(args, &i, 1);
-			else
-				fd = setup_redirection(args, &i, 2);
-			if (dup2(fd, STDOUT_FILENO) == -1)
+			fd = setup_input_redirection(args, &i);
+			if (dup2(fd, STDIN_FILENO) == -1)
 			{
-				perror("Failed to redirect stdout");
+				perror("Failed to redirect stdin");
 				close(fd);
 				free_array(args);
 				exit(EXIT_FAILURE);
@@ -111,6 +101,6 @@ void	ft_redirection(char *input, char **envp)
 		else
 			i++;
 	}
-	execute_command_with_redirection(args, envp, save_stdout);
+	execute_command(args, envp, save_stdin);
 	free_array(args);
 }

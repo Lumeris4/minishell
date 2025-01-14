@@ -1,0 +1,13 @@
+total 68
+-rw-r--r-- 1 lelanglo 2024_le-havre  1846 Jan 14 12:46 chevron.c
+-rw-r--r-- 1 lelanglo 2024_le-havre  2508 Jan 14 13:14 chevrons_other.c
+-rw-r--r-- 1 lelanglo 2024_le-havre  2855 Jan 14 11:32 chevron_utils.c
+-rw-r--r-- 1 lelanglo 2024_le-havre  1946 Jan 14 09:11 main.c
+-rw-r--r-- 1 lelanglo 2024_le-havre   539 Jan 14 12:42 Makefile
+-rwxr-xr-x 1 lelanglo 2024_le-havre 27392 Jan 14 13:12 minishell
+-rw-r--r-- 1 lelanglo 2024_le-havre  1381 Jan 14 12:37 parsing.h
+-rw-r--r-- 1 lelanglo 2024_le-havre  3038 Jan 14 09:11 split.c
+-rw-r--r-- 1 lelanglo 2024_le-havre  2343 Jan 14 13:40 test
+-rw-r--r-- 1 lelanglo 2024_le-havre     4 Jan 14 13:46 test2
+-rw-r--r-- 1 lelanglo 2024_le-havre     0 Jan 14 13:46 test3
+-rw-r--r-- 1 lelanglo 2024_le-havre  1065 Jan 14 09:11 utils.c

@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 10:35:15 by rlebaill          #+#    #+#             */
-/*   Updated: 2025/01/09 11:50:19 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/14 16:22:59 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,21 +21,31 @@ static int	count(char const *s)
 	count = 0;
 	while (i == 0 || (s[i] && s[i + 1]))
 	{
-		if (((i == 0 && s[i] != ' ' && s[i] != '\0')
-				|| (s[i] == ' ' && s[i + 1] != ' ')))
+		if (((i == 0 && !to_ignore(s[i]) && s[i] != '\0')
+				|| (to_ignore(s[i]) && !to_ignore(s[i + 1]))))
 			count++;
-		if (s[i] == '"')
+		if (ft_strncmp(&s[i], ">>", 2) == 0
+			|| ft_strncmp(&s[i], "<<", 2) == 0)
 		{
+			if (s[i - 1] && !to_ignore(s[i - 1]))
+				count++;
+			if (s[i + 2] && !to_ignore(s[i + 2]))
+				count++;
 			i++;
+		}
+		else if (s[i] == '|' || s[i] == '>' || s[i] == '<')
+		{
+			if (s[i - 1] && !to_ignore(s[i - 1]))
+				count++;
+			if (s[i + 1] && !to_ignore(s[i + 1]))
+				count++;
+		}
+		if (s[i] == '"' && ++i)
 			while (s[i] && s[i] != '"')
 				i++;
-		}
-		else if (s[i] == '\'')
-		{
-			i++;
+		else if (s[i] == '\'' && ++i)
 			while (s[i] && s[i] != '\'')
 				i++;
-		}
 		i++;
 	}
 	return (count);
@@ -48,9 +58,10 @@ static int	ft_len_without_quote(const char *s)
 
 	len = 0;
 	i = 0;
-	while (s[i] && s[i] == ' ')
+	while (s[i] && to_ignore(s[i]))
 		i++;
-	while (s[i] && s[i] != ' ')
+	while (s[i] && !to_ignore(s[i]) && s[i] != '|' && s[i] != '>'
+		&& s[i] != '<')
 	{
 		if (s[i] == '"')
 		{
@@ -77,9 +88,10 @@ static int	ft_len_with_quote(const char *s)
 
 	len = 0;
 	i = 0;
-	while (s[i] && s[i] == ' ')
+	while (s[i] && to_ignore(s[i]))
 		i++;
-	while (s[i] && s[i] != ' ')
+	while (s[i] && !to_ignore(s[i]) && s[i] != '|' && s[i] != '>'
+		&& s[i] != '<')
 	{
 		if (s[i] == '"')
 		{
@@ -96,7 +108,7 @@ static int	ft_len_with_quote(const char *s)
 		len++;
 		i++;
 	}
-	return (len);
+	return (len - ((s[i] == '|') || s[i] == '>' || s[i] == '<'));
 }
 
 static char	*next_word(char const *s)
@@ -137,24 +149,37 @@ char	**ft_split_quote(char *s)
 	j = 0;
 	while (i < (int)ft_strlen(s))
 	{
-		while (s[i] == ' ' && s[i])
+		while (s[i] && to_ignore(s[i]))
 			i++;
 		if (!s[i])
 			break ;
-		split[j] = next_word(&s[i]);
-		i += ft_len_with_quote(&s[i]) + 1;
+		if (ft_strncmp(&s[i], "|", 1) == 0 && ++i)
+			split[j] = ft_strdup("|");
+		else if (ft_strncmp(&s[i], ">>", 2) == 0 && ++i && ++i)
+			split[j] = ft_strdup(">>");
+		else if (ft_strncmp(&s[i], "<<", 2) == 0 && ++i && ++i)
+			split[j] = ft_strdup("<<");
+		else if (ft_strncmp(&s[i], ">", 1) == 0 && ++i)
+			split[j] = ft_strdup(">");
+		else if (ft_strncmp(&s[i], "<", 1) == 0 && ++i)
+			split[j] = ft_strdup("<");
+		else
+		{
+			split[j] = next_word(&s[i]);
+			i += ft_len_with_quote(&s[i]) + 1;
+		}
 		j++;
 	}
 	split[j] = NULL;
 	return (split);
 }
 
-// int	main(void)
+// int	main(int ac, char **av)
 // {
 // 	int		i;
 // 	char	**split;
 
-// 	split = ft_split_quote("ok\'ok\" \"kk\' bonsoir");
+// 	split = ft_split_quote(av[1]);
 // 	for (i = 0; split[i]; i++)
 // 	{
 // 		printf("%s\n", split[i]);
