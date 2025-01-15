@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 12:08:28 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/14 16:30:49 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/15 13:35:06 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ static void	ft_direction(char *input, char **envp, char **args)
 	char	*cut;
 
 	cut = ft_strchr(input, '<');
-	if (cut && cut[1] && cut[1] == '<')
+	if (input && cut && cut[1] && cut[1] == '<')
 		ft_heredoc(input);
 	else if (ft_strchr(input, '<'))
 		ft_other_redirection(input, envp);

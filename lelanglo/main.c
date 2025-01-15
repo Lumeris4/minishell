@@ -6,11 +6,12 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:08:40 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/09 15:44:38 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/15 11:09:52 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parsing.h"
+
 
 static void	ft_cd(char *input)
 {
@@ -53,7 +54,7 @@ int	main(int argc, char **argv, char **envp)
 	signal(SIGQUIT, SIG_IGN);
 	while (argc && argv[0])
 	{
-		input = readline("Minishell ");
+		input = readline("Ɛ>BEBROUDIC<3 ");
 		if (!input)
 			break ;
 		if (*input && ft_strlen(input) > 0)
