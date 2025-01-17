@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 15:30:56 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/15 12:55:33 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/17 14:04:42 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,12 @@ static char	*ft_get_stop_word(char **args)
 	while (args[i])
 	{
 		if (ft_strcmp(args[i], "<<") == 0)
-			return (ft_strdup(args[i + 1]));
+		{
+			if (args[i + 1])
+				return (ft_strdup(args[i + 1]));
+			else
+				perror("No delimiter word");
+		}
 		i++;
 	}
 	return (NULL);
@@ -71,7 +76,6 @@ static void	ft_print_and_free_list(t_list *head)
 
 	while (head)
 	{
-		ft_printf("%s\n", head->content);
 		free(head->content);
 		tmp = head;
 		head = head->next;
