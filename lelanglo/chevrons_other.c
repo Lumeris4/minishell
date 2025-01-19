@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:21:04 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/17 14:16:22 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/19 19:10:57 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,14 @@ static int	setup_input_redirection(char **args, int *i)
 	{
 		perror("Redirection file missing");
 		free_array(args);
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
 	fd = open(args[*i + 1], O_RDONLY);
 	if (fd == -1)
 	{
 		perror("Failed to open file for input redirection");
 		free_array(args);
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
 	args[*i] = NULL;
 	(*i)++;
@@ -90,17 +90,13 @@ void	ft_other_redirection(char *input, char **envp)
 		{
 			fd = setup_input_redirection(args, &i);
 			if (dup2(fd, STDIN_FILENO) == -1)
-			{
-				perror("Failed to redirect stdin");
-				close(fd);
-				free_array(args);
-				exit(EXIT_FAILURE);
-			}
+				return ;
 			close(fd);
 		}
 		else
 			i++;
 	}
-	execute_command(args, envp, save_stdin);
+	if (args[0])
+		execute_command(args, envp, save_stdin);
 	free_array(args);
 }

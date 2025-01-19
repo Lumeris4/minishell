@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 15:30:56 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/17 15:05:22 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/19 19:04:59 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,45 +51,6 @@ static char	**ft_extract_command(char **args, int heredoc_index)
 	return (cmd);
 }
 
-static void	ft_add_to_list(t_list **head, char *line)
-{
-	t_list	*new_node;
-	t_list	*current;
-
-	new_node = malloc(sizeof(t_list));
-	if (!new_node)
-		return ;
-	new_node->content = ft_strdup(line);
-	new_node->next = NULL;
-	if (!*head)
-		*head = new_node;
-	else
-	{
-		current = *head;
-		while (current->next)
-			current = current->next;
-		current->next = new_node;
-	}
-}
-
-static void	ft_read_heredoc(t_list **head, char *stop)
-{
-	char	*other_input;
-
-	*head = NULL;
-	while (1)
-	{
-		other_input = readline("> ");
-		if (!other_input || (stop && ft_strcmp(other_input, stop) == 0))
-		{
-			free(other_input);
-			break ;
-		}
-		ft_add_to_list(head, other_input);
-		free(other_input);
-	}
-}
-
 static char	*ft_find_command_path(char *cmd)
 {
 	char	**paths;
@@ -117,17 +78,14 @@ static char	*ft_find_command_path(char *cmd)
 	return (NULL);
 }
 
-static void	ft_execute_with_heredoc(char **cmd, t_list *head)
+static void	ft_execute_with_heredoc(char **cmd, int pipe_fd[2])
 {
-	int		pipe_fd[2];
 	pid_t	pid;
 	char	*cmd_path;
 
 	cmd_path = ft_find_command_path(cmd[0]);
 	if (!cmd_path)
 		return ;
-	if (pipe(pipe_fd) == -1)
-		return (perror("pipe"));
 	pid = fork();
 	if (pid == -1)
 		return (perror("fork"));
@@ -143,37 +101,36 @@ static void	ft_execute_with_heredoc(char **cmd, t_list *head)
 	else
 	{
 		close(pipe_fd[0]);
-		while (head)
-		{
-			ft_putendl_fd(head->content, pipe_fd[1]);
-			head = head->next;
-		}
-		close(pipe_fd[1]);
 		free(cmd_path);
 		waitpid(pid, NULL, 0);
 	}
 }
 
-static void	ft_free_list(t_list *head)
+static void	ft_read_and_write_heredoc(char *stop, int pipe_fd[2])
 {
-	t_list	*tmp;
+	char	*line;
 
-	while (head)
+	while (1)
 	{
-		free(head->content);
-		tmp = head;
-		head = head->next;
-		free(tmp);
+		line = readline("> ");
+		if (!line || (stop && ft_strcmp(line, stop) == 0))
+		{
+			free(line);
+			break ;
+		}
+		ft_putendl_fd(line, pipe_fd[1]);
+		free(line);
 	}
+	close(pipe_fd[1]);
 }
 
 void	ft_heredoc(char *input)
 {
 	char	**args;
 	char	*stop;
-	t_list	*head;
 	int		heredoc_index;
 	char	**cmd;
+	int		pipe_fd[2];
 
 	args = ft_split_quote(input);
 	if (!args)
@@ -185,10 +142,13 @@ void	ft_heredoc(char *input)
 		return ;
 	}
 	cmd = ft_extract_command(args, heredoc_index);
-	ft_read_heredoc(&head, stop);
-	ft_execute_with_heredoc(cmd, head);
-	ft_free_list(head);
+	if (pipe(pipe_fd) == -1)
+		return (perror("pipe"));
+	ft_read_and_write_heredoc(stop, pipe_fd);
+	if (cmd[0])
+		ft_execute_with_heredoc(cmd, pipe_fd);
 	free_array(args);
 	free_array(cmd);
 	free(stop);
 }
+
