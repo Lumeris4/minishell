@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:21:04 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/19 19:10:57 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/21 15:47:49 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,35 +34,8 @@ static int	setup_input_redirection(char **args, int *i)
 	return (fd);
 }
 
-static void	execute_command(char **args, char **envp, int save_stdin)
-{
-	char	*cmd_path;
-	pid_t	pid;
 
-	cmd_path = ft_strjoin("/usr/bin/", args[0]);
-	pid = fork();
-	if (pid == -1)
-	{
-		free(cmd_path);
-		dup2(save_stdin, STDIN_FILENO);
-		free_array(args);
-		exit(EXIT_FAILURE);
-	}
-	else if (pid == 0)
-	{
-		if (execve(cmd_path, args, envp) == -1)
-		{
-			perror("Execution failed");
-			exit(EXIT_FAILURE);
-		}
-	}
-	wait(NULL);
-	dup2(save_stdin, STDIN_FILENO);
-	close(save_stdin);
-	free(cmd_path);
-}
-
-void	ft_other_redirection(char *input, char **envp)
+int	ft_other_redirection(char *input)
 {
 	int		fd;
 	int		save_stdin;
@@ -74,14 +47,14 @@ void	ft_other_redirection(char *input, char **envp)
 	{
 		perror("No command provided");
 		free_array(args);
-		return ;
+		return (-1);
 	}
 	save_stdin = dup(STDIN_FILENO);
 	if (save_stdin == -1)
 	{
 		perror("Failed to save stdin");
 		free_array(args);
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
 	i = 0;
 	while (args[i])
@@ -90,13 +63,12 @@ void	ft_other_redirection(char *input, char **envp)
 		{
 			fd = setup_input_redirection(args, &i);
 			if (dup2(fd, STDIN_FILENO) == -1)
-				return ;
+				return (-1);
 			close(fd);
 		}
 		else
 			i++;
 	}
-	if (args[0])
-		execute_command(args, envp, save_stdin);
 	free_array(args);
+	return(save_stdin);
 }

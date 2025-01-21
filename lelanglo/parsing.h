@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:53:06 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/15 14:13:46 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/20 18:41:46 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,14 @@
 
 # define KGRN "\x1B[32m"
 
-void	ft_redirection(char *input, char **envp);
+int		ft_redirection(char *input);
 int		ft_strcmp(char *s1, char *s2);
 void	ft_shell(char **envp, char *input);
 void	free_array(char **array);
 char	**ft_split_quote(char *s);
-void	ft_other_redirection(char *input, char **envp);
+int		ft_other_redirection(char *input);
 int		to_ignore(char c);
 void	ft_heredoc(char *input);
+int	ft_strindex(const char *str, const char *substr);
 
 #endif

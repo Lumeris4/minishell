@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:45:21 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/14 15:08:40 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/20 18:41:36 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,3 +30,24 @@ int	to_ignore(char c)
 		return (1);
 	return (0);
 }
+
+int	ft_strindex(const char *str, const char *substr)
+{
+	int	i;
+	int	j;
+
+	if (!str || !substr)
+		return (-1);
+	i = 0;
+	while (str[i])
+	{
+		j = 0;
+		while (substr[j] && str[i + j] == substr[j])
+			j++;
+		if (!substr[j])
+			return (i);
+		i++;
+	}
+	return (-1);
+}
+

@@ -1,0 +1,14 @@
+chevron.c
+chevrons_other.c
+chevron_utils.c
+ft_heredoc.c
+main.c
+Makefile
+minishell
+parsing.h
+split.c
+test
+test1
+test2
+test3
+utils.c
