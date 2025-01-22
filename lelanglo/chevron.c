@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 12:08:28 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/22 14:42:30 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/22 15:08:06 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ void execute_command(char **envp, char *input, int save_fd, int save_stdin)
     pid_t   pid;
     char    *cmd_path;
     char    **args;
+    int     fd;
 
     args = extract_command(input);
     if (!args || !args[0])
@@ -66,6 +67,14 @@ void execute_command(char **envp, char *input, int save_fd, int save_stdin)
         dup2(save_stdin, STDIN_FILENO);
         close(save_stdin);
         return ;
+    }
+    fd = open(".heredoc_tmp", O_RDONLY);
+    if (fd != -1)
+    {
+		save_stdin = dup(STDIN_FILENO);
+        dup2(fd, STDIN_FILENO);
+        close(fd);
+        unlink(".heredoc_tmp");
     }
     cmd_path = ft_strjoin("/usr/bin/", args[0]);
     pid = fork();
@@ -87,8 +96,8 @@ void	ft_direction(char *input, char **envp)
 
 	save_fd = -2;
 	save_stdin = -2;
-
-	if ((char_pos = ft_strchr(input, '<')))
+	char_pos = ft_strchr(input, '<');
+	if (char_pos)
 	{
 		if (*(char_pos + 1) == '<')
 			ft_heredoc(input);
