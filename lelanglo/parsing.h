@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:53:06 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/20 18:41:46 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/22 09:02:54 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,4 @@ char	**ft_split_quote(char *s);
 int		ft_other_redirection(char *input);
 int		to_ignore(char c);
 void	ft_heredoc(char *input);
-int	ft_strindex(const char *str, const char *substr);
-
 #endif

@@ -6,7 +6,7 @@
 /*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:45:21 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/20 18:41:36 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/22 09:34:14 by lelanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,23 +31,15 @@ int	to_ignore(char c)
 	return (0);
 }
 
-int	ft_strindex(const char *str, const char *substr)
+void	free_array(char **array)
 {
 	int	i;
-	int	j;
 
-	if (!str || !substr)
-		return (-1);
 	i = 0;
-	while (str[i])
+	while (array[i])
 	{
-		j = 0;
-		while (substr[j] && str[i + j] == substr[j])
-			j++;
-		if (!substr[j])
-			return (i);
+		free(array[i]);
 		i++;
 	}
-	return (-1);
+	free(array);
 }
-
