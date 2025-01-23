@@ -1,14 +1,1 @@
-total 80
--rw-r--r-- 1 lelanglo 2024_le-havre  2135 Jan 10 09:31 chevron.c
--rw-r--r-- 1 lelanglo 2024_le-havre  2713 Jan 10 09:33 chevron_utils.c
--rw-r--r-- 1 lelanglo 2024_le-havre  2006 Jan 10 08:53 command2.c
--rw-r--r-- 1 lelanglo 2024_le-havre  2088 Jan 10 09:26 command.c
--rw-r--r-- 1 lelanglo 2024_le-havre  2087 Jan 10 08:53 env.c
--rw-r--r-- 1 lelanglo 2024_le-havre  3101 Jan 10 09:48 exec.c
--rw-r--r-- 1 lelanglo 2024_le-havre  2864 Jan 10 09:26 main.c
--rw-r--r-- 1 lelanglo 2024_le-havre   555 Jan 10 09:30 Makefile
--rwxr-xr-x 1 lelanglo 2024_le-havre 32856 Jan 10 09:49 minishell
--rw-r--r-- 1 lelanglo 2024_le-havre  1962 Jan 10 09:33 minishell.h
--rw-r--r-- 1 lelanglo 2024_le-havre  3040 Jan 10 08:53 split.c
--rw-r--r-- 1 lelanglo 2024_le-havre     0 Jan 10 09:49 test
--rw-r--r-- 1 lelanglo 2024_le-havre  1443 Jan 10 09:32 utils.c
+

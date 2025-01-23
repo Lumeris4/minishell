@@ -6,7 +6,7 @@
 /*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 18:33:33 by rlebaill          #+#    #+#             */
-/*   Updated: 2025/01/08 13:21:26 by rlebaill         ###   ########.fr       */
+/*   Updated: 2025/01/22 14:56:16 by rlebaill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,16 +27,19 @@ t_list	*ft_env_in_list(char **envp)
 	return (env);
 }
 
-void	ft_env(t_list *env)
+int	ft_env(t_list *env)
 {
 	t_list	*lst;
 
+	if (!ft_in_env("PATH", env))
+		return (ft_putstr_fd(" command not found\n", 2), 127);
 	lst = env;
 	while (lst)
 	{
 		ft_printf("%s\n", lst->content);
 		lst = lst->next;
 	}
+	return (0);
 }
 
 static char	**ft_create_env_sorted(t_list *env)

@@ -3,111 +3,72 @@
 /*                                                        :::      ::::::::   */
 /*   chevron_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 15:24:29 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/10 09:33:37 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/22 18:17:18 by rlebaill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	give_i(char **args, int number)
-{
-	int	i;
-
-	i = 0;
-	if (number == 1)
-	{
-		while (args[i] && ft_strcmp(args[i], ">") != 0)
-			i++;
-	}
-	else if (number == 2)
-	{
-		while (args[i] && ft_strcmp(args[i], ">>") != 0)
-			i++;
-	}
-	return (i);
-}
-
-static int	setup_redirection(char **args, int number)
+static int	setup_redirection(char **args, int *i, int number)
 {
 	int	fd;
-	int	i;
 
-	i = give_i(args, number);
-	if (!args[i] || !args[i + 1])
+	if (!args[*i + 1])
 	{
-		perror("Redirection file missing");
-		free_array(args);
-		exit(EXIT_FAILURE);
+		ft_putstr_fd("Redirection file missing\n", 2);
+		return (-1);
 	}
 	if (number == 1)
-		fd = open(args[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		fd = open(args[*i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	else
-		fd = open(args[i + 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+		fd = open(args[*i + 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd == -1)
 	{
-		perror("Failed to open file");
-		free_array(args);
-		exit(EXIT_FAILURE);
+		ft_putstr_fd("Failed to open file\n", 2);
+		ft_free_split(args);
+		return (-1);
 	}
-	args[i] = NULL;
+	args[*i] = NULL;
+	(*i)++;
 	return (fd);
 }
 
-static void	execute_command_with_redirection(char **args, char **envp,
-		int save_stdout)
+static int	handle_redirection(char **args, int *i)
 {
-	char	*cmd_path;
-	pid_t	pid;
+	int	fd;
 
-	cmd_path = ft_strjoin("/usr/bin/", args[0]);
-	pid = fork();
-	if (pid == -1)
-	{
-		free(cmd_path);
-		dup2(save_stdout, STDOUT_FILENO);
-		free_array(args);
-		exit(EXIT_FAILURE);
-	}
-	else if (pid == 0)
-	{
-		if (execve(cmd_path, args, envp) == -1)
-		{
-			perror("Execution failed");
-			exit(EXIT_FAILURE);
-		}
-	}
-	wait(NULL);
-	dup2(save_stdout, STDOUT_FILENO);
-	close(save_stdout);
-	free(cmd_path);
-}
-
-void	ft_redirection(char *input, char **envp, int number)
-{
-	int		fd;
-	int		save_stdout;
-	char	**args;
-
-	args = ft_split_quote(input);
-	if (!args || !args[0])
-	{
-		perror("No command provided");
-		free_array(args);
-		return ;
-	}
-	fd = setup_redirection(args, number);
-	save_stdout = dup(STDOUT_FILENO);
+	if (ft_strcmp(args[*i], ">") == 0)
+		fd = setup_redirection(args, i, 1);
+	else
+		fd = setup_redirection(args, i, 2);
+	if (fd == -1)
+		return (-1);
 	if (dup2(fd, STDOUT_FILENO) == -1)
 	{
-		perror("Failed to redirect stdout");
 		close(fd);
-		free_array(args);
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
 	close(fd);
-	execute_command_with_redirection(args, envp, save_stdout);
-	free_array(args);
+	return (0);
+}
+
+int	ft_redirection(char **args)
+{
+	int		save_stdout;
+	int		i;
+
+	if (!args || !args[0])
+		return (ft_putstr_fd(" no command provided\n", 2), -1);
+	save_stdout = dup(STDOUT_FILENO);
+	i = -1;
+	while (args[++i])
+	{
+		if (ft_strcmp(args[i], ">") == 0 || ft_strcmp(args[i], ">>") == 0)
+			if (handle_redirection(args, &i) == -1)
+				return (-1);
+	}
+	return (save_stdout);
 }

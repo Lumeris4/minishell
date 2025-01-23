@@ -3,93 +3,106 @@
 /*                                                        :::      ::::::::   */
 /*   chevron.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 12:08:28 by lelanglo          #+#    #+#             */
-/*   Updated: 2025/01/10 09:31:08 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/22 18:22:32 by rlebaill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	execute_command(char **envp, char **args)
-{
-	pid_t	pid;
-	char	*cmd_path;
-
-	cmd_path = ft_strjoin("/usr/bin/", args[0]);
-	pid = fork();
-	if (pid == -1)
-	{
-		free(cmd_path);
-		exit(EXIT_FAILURE);
-	}
-	else if (pid == 0)
-	{
-		if (execve(cmd_path, args, envp) == -1)
-		{
-			perror("Execution failed");
-			exit(EXIT_FAILURE);
-		}
-	}
-	wait(NULL);
-	free(cmd_path);
-}
-
-void	free_array(char **array)
-{
-	int		i;
-
-	i = 0;
-	while (array[i])
-	{
-		free(array[i]);
-		i++;
-	}
-	free(array);
-}
-
-static void	ft_direction(char *input, char **envp, char **args)
-{
-	char	*cut;
-
-	cut = ft_strchr(input, '>');
-	if (cut && cut[1] == '>')
-		ft_redirection(input, envp, 2);
-	else if (ft_strchr(input, '>') != NULL)
-		ft_redirection(input, envp, 1);
-	else
-		execute_command(envp, args);
-}
-
-void	ft_shell(char **envp, char *input)
+static char	**extract_command(char *input, t_mini *mini)
 {
 	char	**args;
 	int		i;
 
-	args = ft_split_quote(input);
+	args = ft_split_quote(input, mini);
+	if (!args)
+		return (NULL);
+	i = 0;
+	while (args[i] && ft_strcmp(args[i], ">") != 0
+		&& ft_strcmp(args[i], ">>") != 0
+		&& ft_strcmp(args[i], "<") != 0 && ft_strcmp(args[i], "<<") != 0)
+		i++;
+	args[i] = NULL;
+	return (args);
+}
+
+// static void	child_process(char *cmd_path, char **args, char **envp)
+// {
+// 	if (execve(cmd_path, args, envp) == -1)
+// 	{
+// 		ft_putstr_fd("Execution failed\n", 2);
+// 		exit(EXIT_FAILURE);
+// 	}
+// }
+
+static void	parent_process(int save_fd, int save_stdin)
+{
+	wait(NULL);
+	if (save_fd >= 0)
+	{
+		dup2(save_fd, STDOUT_FILENO);
+		close(save_fd);
+	}
+	if (save_stdin >= 0)
+	{
+		dup2(save_stdin, STDIN_FILENO);
+		close(save_stdin);
+	}
+}
+
+int	execute_command(char *input, int save_fds[2],
+	char ***splited_split, t_mini *mini)
+{
+	int		status;
+	char	**args;
+	int		fd;
+
+	args = extract_command(input, mini);
 	if (!args || !args[0])
 	{
-		free(args);
-		exit(EXIT_FAILURE);
+		dup2(save_fds[0], STDOUT_FILENO);
+		close(save_fds[0]);
+		dup2(save_fds[1], STDIN_FILENO);
+		close(save_fds[1]);
+		return (127);
 	}
-	i = 0;
-	while (args[i])
+	fd = open(".heredoc_tmp", O_RDONLY);
+	if (fd != -1)
 	{
-		if (ft_strcmp(args[i], ">>") == 0)
-		{
-			free(args[i]);
-			args[i] = NULL;
-			break ;
-		}
-		else if (ft_strcmp(args[i], ">") == 0)
-		{
-			free(args[i]);
-			args[i] = NULL;
-			break ;
-		}
-		i++;
+		save_fds[1] = dup(STDIN_FILENO);
+		dup2(fd, STDIN_FILENO);
+		close(fd);
+		unlink(".heredoc_tmp");
 	}
-	ft_direction(input, envp, args);
-	free_array(args);
+	status = ft_command(args, splited_split, input, mini);
+	parent_process(save_fds[0], save_fds[1]);
+	ft_free_split(args);
+	return (status);
+}
+
+int	ft_direction(char **split, char ***splited_split,
+	char *input, t_mini *mini)
+{
+	int		status;
+	int		save_fds[2];
+	char	*char_pos;
+
+	save_fds[0] = -2;
+	save_fds[1] = -2;
+	char_pos = ft_strchr(input, '<');
+	if (char_pos)
+	{
+		if (*(char_pos + 1) == '<')
+			status = ft_heredoc(split);
+		else if (*(char_pos + 1) != '\0')
+			save_fds[1] = ft_other_redirection(input, mini);
+	}
+	if ((char_pos = ft_strchr(input, '>')))
+		save_fds[0] = ft_redirection(split);
+	if (save_fds[0] != -1 || save_fds[1] != -1)
+		return (execute_command(input, save_fds, splited_split, mini));
+	return (127);
 }

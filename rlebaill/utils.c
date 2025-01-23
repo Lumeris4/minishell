@@ -3,14 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:54:30 by rlebaill          #+#    #+#             */
-/*   Updated: 2025/01/10 09:32:43 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/21 11:51:22 by rlebaill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	ft_strcmp(char *s1, char *s2)
+{
+	int	i;
+
+	i = 0;
+	while (s1[i] == s2[i] && s1[i] != '\0' && s2[i] != '\0')
+	{
+		i++;
+	}
+	return (s1[i] - s2[i]);
+}
 
 int	ft_get_size_mat(char **env)
 {
@@ -35,27 +47,37 @@ void	ft_free_split(char **split)
 	free(split);
 }
 
-void	ft_free_splited_split(char ***splited_split)
+int	to_ignore(char c)
+{
+	if (c == ' ' || c == '\t')
+		return (1);
+	return (0);
+}
+
+void	show_split(char **split)
 {
 	int	i;
 
 	i = 0;
-	while (splited_split[i])
+	while (split[i])
 	{
-		ft_free_split(splited_split[i]);
+		ft_putstr_fd("-> ", 2);
+		ft_putstr_fd(split[i], 2);
+		ft_putstr_fd("\n", 2);
 		i++;
 	}
-	free(splited_split);
 }
 
-int	ft_strcmp(char *s1, char *s2)
-{
-	int	i;
+// void	show_splited_split(char ***splited_split)
+// {
+// 	int	i;
 
-	i = 0;
-	while (s1[i] == s2[i] && s1[i] != '\0' && s2[i] != '\0')
-	{
-		i++;
-	}
-	return (s1[i] - s2[i]);
-}
+// 	i = 0;
+// 	printf(">--------<\n");
+// 	while (splited_split[i])
+// 	{
+// 		show_split(splited_split[i]);
+// 		printf("----------\n");
+// 		i++;
+// 	}
+// }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 18:22:04 by rlebaill          #+#    #+#             */
-/*   Updated: 2025/01/10 09:48:40 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/22 17:53:50 by rlebaill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@ static int	ft_count_commands(char **split)
 	int	i;
 
 	i = 0;
-	if (ft_strncmp(split[0], "|", 1) == 0 && !split[0][1])
+	if (ft_strcmp(split[0], "|") == 0)
 		return (1);
-	while (split[i] && !(ft_strncmp(split[i], "|", 1) == 0 && !split[i][1]))
+	while (split[i] && !(ft_strcmp(split[i], "|") == 0))
 		i++;
 	return (i);
 }
@@ -28,47 +28,56 @@ static char	**ft_extracte_command(char **split, int n)
 {
 	char	**command;
 	int		i;
+	int		j;
+	int		len;
 
+	j = -1;
+	i = -1;
+	len = n;
+	while (++i < n)
+	{
+		if (!split[i][0])
+			len--;
+	}
+	if (len == 0)
+		return (NULL);
 	i = 0;
-	command = malloc(sizeof(char *) * (n + 1));
+	command = malloc(sizeof(char *) * (len + 1));
 	while (i < n)
 	{
-		command[i] = ft_strdup(split[i]);
+		if (split[i][0] && !(split[i][0] == ' ' && !split[i][1]))
+			command[++j] = ft_strdup(split[i]);
 		i++;
 	}
-	command[i] = NULL;
+	command[++j] = NULL;
 	return (command);
 }
 
-static char	***ft_split_split(char **split)
+static char	***ft_split_split(char **split, int count, int i, int j)
 {
 	char	***splited_split;
-	int		count;
-	int		i;
-	int		j;
+	char	**tmp;
 
-	count = 0;
-	i = -1;
-	j = 0;
 	while (split[++i])
-		if (ft_strncmp(split[i], "|", 1) == 0 && !split[i][1])
-			count++;
-	count = count * 2 + 1;
+		if (ft_strcmp(split[i], "|") == 0)
+			count += 2;
 	splited_split = malloc(sizeof(char **) * (count + 2));
+	if (!splited_split)
+		return (NULL);
 	i = 0;
 	while (split[i])
 	{
 		count = ft_count_commands(&split[i]);
-		splited_split[j++] = ft_extracte_command(&split[i], count);
+		tmp = ft_extracte_command(&split[i], count);
+		if (tmp)
+			splited_split[j++] = tmp;
 		i += count;
 	}
-	splited_split[j] = NULL;
-	splited_split[j + 1] = NULL;
-	return (splited_split);
+	return (splited_split[j] = NULL, splited_split[j + 1] = NULL,
+		splited_split);
 }
 
-static int	ft_pipe(char ***splited_split, char **split,
-	char **envp, t_mini *mini, char *input)
+static int	ft_pipe(char ***splited_split, char *input, t_mini *mini)
 {
 	int		fd[2];
 	int		i;
@@ -77,52 +86,48 @@ static int	ft_pipe(char ***splited_split, char **split,
 
 	prev_fd = 0;
 	i = 0;
-	while (splited_split[i])
+	if (splited_split[1])
 	{
-		if (splited_split[i + 1] && pipe(fd) == -1)
-			return (ft_free_split(split), 1);
-		pid = fork();
-		if (pid == -1)
-			return (ft_free_split(split), 1);
-		if (pid == 0)
+		while (splited_split[i])
 		{
-			if (splited_split[i + 1])
-				dup2(fd[1], STDOUT_FILENO);
+			if (splited_split[i + 1] && pipe(fd) == -1)
+				return (127);
+			pid = fork();
+			if (pid == -1)
+				return (127);
+			if (pid == 0)
+				ft_fill_pipe(&splited_split[i], fd, prev_fd, mini);
 			if (prev_fd != 0)
-				dup2(prev_fd, STDIN_FILENO);
-			close(fd[0]);
+				close(prev_fd);
+			if (splited_split[i + 1])
+				prev_fd = fd[0];
 			close(fd[1]);
-			ft_command(splited_split[i], envp, mini, input);
-			exit (0);
+			i += 2;
 		}
-		if (prev_fd != 0)
-			close(prev_fd);
-		if (splited_split[i + 1])
-			prev_fd = fd[0];
-		close(fd[1]);
-		i += 2;
+		waitpid(pid, &i, 0);
+		return ((i >> 8) & 0xFF);
 	}
-	return (1);
+	return (ft_direction(splited_split[0], splited_split, input, mini));
 }
 
-int	ft_execute(char *input, t_mini *mini, char **envp)
+int	ft_execute(char *input, t_mini *mini)
 {
 	char	***splited_split;
 	char	**split;
-	int		i;
+	int		status;
 
-	i = 0;
-	split = ft_split_quote(input);
-	splited_split = ft_split_split(split);
+	split = ft_split_quote(input, mini);
+	if (ft_open_pipe(split))
+		return (1);
+	splited_split = ft_split_split(split, 1, -1, 0);
 	if (!splited_split)
 		return (1);
-	if (splited_split[1])
-		ft_pipe(splited_split, split, envp, mini, input);
+	ft_free_split(split);
+	if (splited_split[0])
+		status = ft_pipe(splited_split, input, mini);
 	else
-		ft_command(splited_split[0], envp, mini, input);
+		status = 0;
 	while (wait(NULL) > 0)
 		;
-	ft_free_splited_split(splited_split);
-	ft_free_split(split);
-	return (1);
+	return (ft_free_splited_split(splited_split), status);
 }

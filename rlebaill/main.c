@@ -3,36 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lelanglo <lelanglo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rlebaill <rlebaill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 10:03:24 by rlebaill          #+#    #+#             */
-/*   Updated: 2025/01/10 09:26:52 by lelanglo         ###   ########.fr       */
+/*   Updated: 2025/01/22 12:52:27 by rlebaill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	ft_command(char **split, char **envp, t_mini *mini, char *input)
+t_mini	g_mini;
+
+int	ft_command(char **split, char ***to_free, char *input, t_mini *mini)
 {
 	if (!split)
-		return ;
-	if (ft_strncmp(split[0], "echo", 4) == 0 && !split[0][4])
-		ft_echo(split);
-	else if (ft_strncmp(split[0], "export", 6) == 0 && !split[0][6])
-		ft_export(split, mini);
-	else if (ft_strncmp(split[0], "unset", 5) == 0 && !split[0][5])
-		ft_unset(split, mini);
-	else if (ft_strncmp(split[0], "cd", 2) == 0 && !split[0][2])
-		ft_cd(split, mini->env);
-	else if (ft_strncmp(split[0], "env", 3) == 0 && !split[0][3])
-		ft_env(mini->env);
-	else if (ft_strncmp(split[0], "./", 2) == 0)
-		ft_exec(split[0], envp);
-	else if (*split[0])
-	{
-		ft_shell(envp, input);
-		wait(NULL);
-	}
+		return (1);
+	if (ft_strcmp(split[0], "cd") == 0)
+		return (ft_cd(split, mini->env, mini));
+	if (ft_strcmp(split[0], "exit") == 0)
+		return (ft_exit(split, mini, to_free, input));
+	if (ft_strcmp(split[0], "echo") == 0)
+		return (ft_echo(split));
+	if (ft_strcmp(split[0], "pwd") == 0)
+		return (ft_pwd());
+	if (ft_strcmp(split[0], "export") == 0)
+		return (ft_export(split, mini));
+	if (ft_strcmp(split[0], "unset") == 0)
+		return (ft_unset(split, mini));
+	if (ft_strcmp(split[0], "env") == 0)
+		return (ft_env(mini->env));
+	if (ft_strncmp(split[0], "./", 2) == 0)
+		return (ft_exec(split, mini->envp));
+	if (*split[0])
+		return (ft_shell(mini->envp, split, mini));
+	return (0);
 }
 
 void	ft_ctrl_c(int sig)
@@ -47,6 +51,7 @@ void	ft_ctrl_c(int sig)
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();
+	g_mini.last_status = 130;
 }
 
 static int	ft_open_quote(const char *s)
@@ -79,28 +84,31 @@ static int	ft_open_quote(const char *s)
 
 int	main(int ac, char **av, char **envp)
 {
-	t_mini	mini;
 	char	*input;
 
-	mini.env = ft_env_in_list(envp);
-	mini.export = ft_env_sorted_in_list(&mini);
+	if (!envp || !envp[0])
+		return (ft_putstr_fd(" empty environment\n", 2), 1);
+	g_mini.last_status = 0;
+	g_mini.env = ft_env_in_list(envp);
+	g_mini.export = ft_env_sorted_in_list(&g_mini);
+	if (!g_mini.export || !g_mini.env)
+		return (1);
+	g_mini.envp = envp;
 	signal(SIGINT, ft_ctrl_c);
 	signal(SIGQUIT, SIG_IGN);
 	while (1 || ac || av[0])
 	{
 		input = readline("minishell> ");
 		if (!input)
-			return (ft_lstclear(&mini.env, free),
-				ft_lstclear(&mini.export, free), ft_printf("exit\n"), 0);
-		if (ft_strncmp(input, "exit", 4) == 0 && (!input[4] || input[4] == ' '))
-			return (ft_lstclear(&mini.env, free), free(input),
-				ft_lstclear(&mini.export, free), ft_printf("exit\n"), 0);
-		if (*input && !ft_open_quote(input))
-		{
-			add_history(input);
-			ft_execute(input, &mini, envp);
-		}
+			break ;
+		else if (*input && !ft_open_quote(input))
+			g_mini.last_status = ft_execute(input, &g_mini);
+		else
+			g_mini.last_status = 0;
+		add_history(input);
 		free(input);
 	}
-	return (0);
+	ft_lstclear(&g_mini.export, free);
+	return (ft_printf("exit\n"), ft_lstclear(&g_mini.env, free), free(input),
+		rl_clear_history(), g_mini.last_status);
 }
